@@ -11,7 +11,7 @@ const TGAColor custom_green = TGAColor(58, 255, 78, 255);
 
 // 布雷森汉姆直线算法
 void line(int x0, int y0, int x1, int y1, TGAImage& tga_image,
-               const TGAColor& color) {
+          const TGAColor& color) {
   bool steep = std::abs(y1 - y0) > std::abs(x1 - x0);
 
   if (steep) {
@@ -53,33 +53,12 @@ void line(int x0, int y0, int x1, int y1, TGAImage& tga_image,
 }
 
 void line(const Vec2i& t0, const Vec2i& t1, TGAImage& tga_image,
-               const TGAColor& color) {
+          const TGAColor& color) {
   line(t0.x, t0.y, t1.x, t1.y, tga_image, color);
 }
 
-void face(Model* model, TGAImage& tga_image, int width, int height,
-               const TGAColor& color) {
-  int nfaces_count = model->nfaces();
-  for (int i = 0; i < nfaces_count; ++i) {
-    std::vector<int> face = model->face(i);
-
-    for (int j = 0; j < 3; ++j) {
-      Vec3f v0 = model->vert(face[j]);
-      Vec3f v1 = model->vert(face[(j + 1) % 3]);
-
-      int x0 = (v0.x + 1.0) * width / 2.0;
-      int y0 = (v0.y + 1.0) * height / 2.0;
-
-      int x1 = (v1.x + 1.0) * width / 2.0;
-      int y1 = (v1.y + 1.0) * height / 2.0;
-
-      line(x0, y0, x1, y1, tga_image, color);
-    }
-  }
-}
-
 void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage& tga_image,
-                   const TGAColor& color) {
+              const TGAColor& color) {
   if (t0.y == t1.y && t0.y == t2.y) {
     return;
   }
@@ -118,4 +97,51 @@ void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage& tga_image,
     }
   }
 }
+
+void triangle(Vec2i* pts, TGAImage& image, const TGAColor& color) {
+  Vec2i bboxmin(image.width() - 1, image.height() - 1);
+  Vec2i bboxmax(0, 0);
+
+  Vec2i clamp(image.width() - 1, image.height() - 1);
+
+  for (int i = 0; i < 3; ++i) {
+    bboxmin.x = std::max(0, std::min(bboxmin.x, pts[i].x));
+    bboxmin.y = std::max(0, std::min(bboxmin.y, pts[i].y));
+
+    bboxmax.x = std::min(clamp.x, std::max(bboxmax.x, pts[i].x));
+    bboxmax.y = std::min(clamp.y, std::max(bboxmax.y, pts[i].y));
+  }
+
+  Vec2i p;
+
+  for (p.x = bboxmin.x; p.x <= bboxmax.x; ++p.x) {
+    for (p.y = bboxmin.y; p.y <= bboxmax.y; ++p.y) {
+      Vec3f bc_screen = barycentric(pts, p);
+      if (bc_screen.x < 0 || bc_screen.y < 0 || bc_screen.z < 0) {
+        continue;
+      }
+      image.set(p.x, p.y, color);
+    }
+  }
+}
+
+void face(Model* model, TGAImage& tga_image, int width, int height,
+          const TGAColor& color) {
+  int nfaces_count = model->nfaces();
+  for (int i = 0; i < nfaces_count; ++i) {
+    std::vector<int> face = model->face(i);
+
+    Vec2i screen_coords[3];
+
+    for (int j = 0; j < 3; ++j) {
+      Vec3f world_coords = model->vert(face[j]);
+      screen_coords[j] = Vec2i((world_coords.x + 1.0) * width / 2.0,
+                               (world_coords.y + 1.0) * height / 2.0);
+    }
+
+    triangle(screen_coords[0], screen_coords[1], screen_coords[2], tga_image,
+             TGAColor(rand() % 255, rand() % 255, rand() % 255));
+  }
+}
+
 #endif  // __TGA_EXTENSION_H__

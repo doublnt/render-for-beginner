@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "geometry.h"
+#include "geometry_ex.h"
 
 class Model {
  private:

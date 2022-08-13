@@ -11,5 +11,6 @@ set(
     src/tgaimage.cpp
     src/model.cpp
 )
+    
 
 add_executable(render-project ${SRC_LIST})
