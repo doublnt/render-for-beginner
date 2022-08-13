@@ -9,6 +9,7 @@ set(
     SRC_LIST
     render_run_main.cc
     src/tgaimage.cpp
+    src/model.cpp
 )
 
 add_executable(render-project ${SRC_LIST})

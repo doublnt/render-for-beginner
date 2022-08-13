@@ -1,6 +1,7 @@
 #ifndef TGA_EXTENSION
 #define TGA_EXTENSION
 
+#include "model.h"
 #include "tgaimage.h"
 
 // 布雷森汉姆直线算法
@@ -44,6 +45,29 @@ void plot_line(int x0, int y0, int x1, int y1, TGAImage& tga_image,
       error = error + deltax;
     }
   }
+}
+
+void plot_face(Model* model, TGAImage& tga_image, int width, int height,
+               const TGAColor& color) {
+  int nfaces_count = model->nfaces();
+  for (int i = 0; i < nfaces_count; ++i) {
+    std::vector<int> face = model->face(i);
+
+    for (int j = 0; j < 3; ++j) {
+      Vec3f v0 = model->vert(face[j]);
+      Vec3f v1 = model->vert(face[(j + 1) % 3]);
+
+      int x0 = (v0.x + 1.0) * width / 2.0;
+      int y0 = (v0.y + 1.0) * height / 2.0;
+
+      int x1 = (v1.x + 1.0) * width / 2.0;
+      int y1 = (v1.y + 1.0) * height / 2.0;
+
+      plot_line(x0, y0, x1, y1, tga_image, color);
+    }
+  }
+
+  tga_image.flip_vertically();
 }
 
 #endif
