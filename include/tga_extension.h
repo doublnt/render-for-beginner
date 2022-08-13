@@ -1,5 +1,5 @@
-#ifndef TGA_EXTENSION
-#define TGA_EXTENSION
+#ifndef __TGA_EXTENSION_H__
+#define __TGA_EXTENSION_H__
 
 #include "model.h"
 #include "tgaimage.h"
@@ -70,4 +70,4 @@ void plot_face(Model* model, TGAImage& tga_image, int width, int height,
   tga_image.flip_vertically();
 }
 
-#endif
+#endif  // __TGA_EXTENSION_H__

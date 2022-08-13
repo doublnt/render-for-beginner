@@ -40,7 +40,7 @@ Model::Model(const char* filename) : verts_(), faces_() {
     }
   }
 
-  std::cerr << "# v# " << verts_.size() << " f# " << faces_.size() << std::endl;
+  std::cout << "# v# " << verts_.size() << " f# " << faces_.size() << std::endl;
 }
 
 Model::~Model() {}
