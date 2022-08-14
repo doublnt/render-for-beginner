@@ -10,6 +10,7 @@ const TGAColor custom_pink = TGAColor(238, 100, 40, 255);
 const TGAColor custom_green = TGAColor(58, 255, 78, 255);
 
 // 布雷森汉姆直线算法
+// 两个点 (x0, y0) (x1, y1) 绘制直线
 void line(int x0, int y0, int x1, int y1, TGAImage& tga_image,
           const TGAColor& color) {
   bool steep = std::abs(y1 - y0) > std::abs(x1 - x0);
@@ -52,9 +53,10 @@ void line(int x0, int y0, int x1, int y1, TGAImage& tga_image,
   }
 }
 
-void line(const Vec2i& t0, const Vec2i& t1, TGAImage& tga_image,
+// 给定两个向量 vec0 ,vec1 绘制直线
+void line(const Vec2i& vec0, const Vec2i& vec1, TGAImage& tga_image,
           const TGAColor& color) {
-  line(t0.x, t0.y, t1.x, t1.y, tga_image, color);
+  line(vec0.x, vec0.y, vec1.x, vec1.y, tga_image, color);
 }
 
 void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage& tga_image,

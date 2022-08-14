@@ -1,3 +1,7 @@
+// summary:
+// read face structure from obj file and cache to memory.
+// include faces vec and vects.
+
 #include "../include/model.h"
 
 #include <fstream>
@@ -21,10 +25,12 @@ Model::Model(const char* filename) : verts_(), faces_() {
 
     if (!line.compare(0, 2, "v ")) {
       iss >> trash;
+
       Vec3f v;
-      for (int i = 0; i < 3; ++i) {
-        iss >> v.raw[i];
-      }
+      iss >> v.x;
+      iss >> v.y;
+      iss >> v.z;
+
       verts_.emplace_back(v);
     } else if (!line.compare(0, 2, "f ")) {
       std::vector<int> f;

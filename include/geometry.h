@@ -4,45 +4,31 @@
 #include <cmath>
 #include <ostream>
 
+// two dimension vector
 template <class t>
 struct Vec2 {
-  union {
-    struct {
-      t u, v;
-    };
-    struct {
-      t x, y;
-    };
-    t raw[2];
-  };
+  t x, y;
 
-  Vec2() : u(0), v(0) {}
+  Vec2() : x(0), y(0) {}
 
-  Vec2(t _u, t _v) : u(_u), v(_v) {}
+  Vec2(t _u, t _v) : x(_u), y(_v) {}
 
-  inline Vec2<t> operator+(const Vec2<t> &V) const {
-    return Vec2<t>(u + V.u, v + V.v);
+  inline Vec2<t> operator+(const Vec2<t> &vec2) const {
+    return Vec2<t>(x + vec2.x, y + vec2.y);
   }
-  inline Vec2<t> operator-(const Vec2<t> &V) const {
-    return Vec2<t>(u - V.u, v - V.v);
+  inline Vec2<t> operator-(const Vec2<t> &vec2) const {
+    return Vec2<t>(x - vec2.x, y - vec2.y);
   }
-  inline Vec2<t> operator*(float f) const { return Vec2<t>(u * f, v * f); }
+  inline Vec2<t> operator*(float f) const { return Vec2<t>(x * f, y * f); }
 
   template <class>
   friend std::ostream &operator<<(std::ostream &s, Vec2<t> &v);
 };
 
+// three dimension vector
 template <class t>
 struct Vec3 {
-  union {
-    struct {
-      t x, y, z;
-    };
-    struct {
-      t ivert, iuv, inorm;
-    };
-    t raw[3];
-  };
+  t x, y, z;
 
   Vec3() : x(0), y(0), z(0) {}
 
@@ -69,6 +55,7 @@ struct Vec3 {
 
   float norm() const { return std::sqrt(x * x + y * y + z * z); }
 
+  // 标准化，变成 单位向量
   Vec3<t> &normalize(t l = 1) {
     *this = (*this) * (l / norm());
     return *this;
@@ -84,6 +71,7 @@ typedef Vec2<int> Vec2i;
 typedef Vec3<float> Vec3f;
 typedef Vec3<int> Vec3i;
 
+// override operator << to print the two dimension vector
 template <class t>
 std::ostream &operator<<(std::ostream &s, Vec2<t> &v) {
   s << "(" << v.x << ", " << v.y << ")\n";
@@ -91,6 +79,7 @@ std::ostream &operator<<(std::ostream &s, Vec2<t> &v) {
   return s;
 }
 
+// override operator << to print three dimension vector
 template <class t>
 std::ostream &operator<<(std::ostream &s, Vec3<t> &v) {
   s << "(" << v.x << ", " << v.y << ", " << v.z << ")\n";
