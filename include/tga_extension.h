@@ -68,27 +68,44 @@ void triangle(Vec2i vec0, Vec2i vec1, Vec2i vec2, TGAImage& tga_image,
     return;
   }
 
-  // 调整三个点的 在 y 轴上的顺序，确保 vec0 在最上，
-  // vec2 在最下
+  // 调整三个点的 在 y 轴上的顺序，确保 vec0 在最下，
+  // vec2 在最上
 
-  if (vec1.y > vec0.y) {
+  if (vec0.y > vec1.y) {
     std::swap(vec1, vec0);
   }
 
-  if (vec2.y > vec0.y) {
+  if (vec0.y > vec2.y) {
     std::swap(vec2, vec0);
   }
 
-  if (vec2.y < vec1.y) {
+  if (vec1.y > vec2.y) {
     std::swap(vec1, vec2);
   }
 
   // 使用连线的方式绘制
-  line(vec1, vec0, tga_image, color);
-  line(vec0, vec2, tga_image, color);
-  line(vec2, vec1, tga_image, color);
+  // line(vec1, vec0, tga_image, color);
+  // line(vec0, vec2, tga_image, color);
+  // line(vec2, vec1, tga_image, color);
 
   if (is_filled) {
+    auto total_height = vec2.y - vec0.y;
+
+    // 需要实现的是找出三角形中所有的点，绘制起来
+    // 实际上其实就是填充两点这条线段中的所有点
+
+    for (int y = vec0.y; y <= vec1.y; ++y) {
+      int segment_height = vec1.y - vec0.y + 1;
+
+      float alpha = static_cast<float>(y - vec0.y) / total_height;
+      float beta = static_cast<float>(y - vec0.y) / segment_height;
+
+      Vec2i start = vec0 + (vec2 - vec0) * alpha;
+      Vec2i end = vec0 + (vec1 - vec0) * beta;
+
+      tga_image.set(start.x, y, red);
+      tga_image.set(end.x, y, custom_green);
+    }
   }
 }
 
