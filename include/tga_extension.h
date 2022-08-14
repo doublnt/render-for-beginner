@@ -53,107 +53,42 @@ void line(int x0, int y0, int x1, int y1, TGAImage& tga_image,
   }
 }
 
-// 给定两个向量 vec0 ,vec1 绘制直线
+// 给定两个二维向量，可以认为是两个点 vec0 ,vec1 绘制直线
 void line(const Vec2i& vec0, const Vec2i& vec1, TGAImage& tga_image,
           const TGAColor& color) {
   line(vec0.x, vec0.y, vec1.x, vec1.y, tga_image, color);
 }
 
-void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage& tga_image,
-              const TGAColor& color) {
-  if (t0.y == t1.y && t0.y == t2.y) {
+// 给定三个点，绘制三角形 边框
+void triangle(Vec2i vec0, Vec2i vec1, Vec2i vec2, TGAImage& tga_image,
+              const TGAColor& color, bool is_filled) {
+  // 若 veco.y = vec1.y = vec2.y 说明三个点在一条水平线上，
+  // 直接 return
+  if (vec0.y == vec1.y == vec2.y) {
     return;
   }
 
-  if (t0.y > t1.y) {
-    std::swap(t0, t1);
+  // 调整三个点的 在 y 轴上的顺序，确保 vec0 在最上，
+  // vec2 在最下
+
+  if (vec1.y > vec0.y) {
+    std::swap(vec1, vec0);
   }
 
-  if (t0.y > t2.y) {
-    std::swap(t0, t2);
+  if (vec2.y > vec0.y) {
+    std::swap(vec2, vec0);
   }
 
-  if (t1.y > t2.y) {
-    std::swap(t1, t2);
+  if (vec2.y < vec1.y) {
+    std::swap(vec1, vec2);
   }
 
-  int total_height = t2.y - t0.y;
+  // 使用连线的方式绘制
+  line(vec1, vec0, tga_image, color);
+  line(vec0, vec2, tga_image, color);
+  line(vec2, vec1, tga_image, color);
 
-  for (int i = 0; i < total_height; ++i) {
-    bool second_half = i > (t1.y - t0.y) || t1.y == t0.y;
-    int segment_height = second_half ? t2.y - t1.y : t1.y - t0.y;
-
-    float alpha = static_cast<float>(i / total_height);
-    float beta = static_cast<float>(i - (second_half ? t1.y - t0.y : 0)) /
-                 segment_height;
-
-    Vec2i a = t0 + (t2 - t0) * alpha;
-    Vec2i b = second_half ? t1 + (t2 - t1) * beta : t0 + (t1 - t0) * beta;
-
-    if (a.x > b.x) {
-      std::swap(a, b);
-    }
-
-    for (int j = a.x; j <= b.x; ++j) {
-      tga_image.set(j, t0.y + i, color);
-    }
-  }
-}
-
-void triangle(Vec2i* pts, TGAImage& image, const TGAColor& color) {
-  Vec2i bboxmin(image.width() - 1, image.height() - 1);
-  Vec2i bboxmax(0, 0);
-
-  Vec2i clamp(image.width() - 1, image.height() - 1);
-
-  for (int i = 0; i < 3; ++i) {
-    bboxmin.x = std::max(0, std::min(bboxmin.x, pts[i].x));
-    bboxmin.y = std::max(0, std::min(bboxmin.y, pts[i].y));
-
-    bboxmax.x = std::min(clamp.x, std::max(bboxmax.x, pts[i].x));
-    bboxmax.y = std::min(clamp.y, std::max(bboxmax.y, pts[i].y));
-  }
-
-  Vec2i p;
-
-  for (p.x = bboxmin.x; p.x <= bboxmax.x; ++p.x) {
-    for (p.y = bboxmin.y; p.y <= bboxmax.y; ++p.y) {
-      Vec3f bc_screen = barycentric(pts, p);
-      if (bc_screen.x < 0 || bc_screen.y < 0 || bc_screen.z < 0) {
-        continue;
-      }
-      image.set(p.x, p.y, color);
-    }
-  }
-}
-
-void face(Model* model, TGAImage& tga_image, int width, int height,
-          const TGAColor& color) {
-  int nfaces_count = model->nfaces();
-  Vec3f light_dir(0, 0, -1);
-  for (int i = 0; i < nfaces_count; ++i) {
-    std::vector<int> face = model->face(i);
-
-    Vec2i screen_coords[3];
-    Vec3f world_coords[3];
-
-    for (int j = 0; j < 3; ++j) {
-      Vec3f v = model->vert(face[j]);
-      screen_coords[j] =
-          Vec2i((v.x + 1.0) * width / 2.0, (v.y + 1.0) * height / 2.0);
-      world_coords[j] = v;
-    }
-
-    Vec3f n = (world_coords[2] - world_coords[0]) ^
-              (world_coords[1] - world_coords[0]);
-    n.normalize();
-
-    float intensity = n * light_dir;
-
-    if (intensity > 0) {
-      triangle(screen_coords[0], screen_coords[1], screen_coords[2], tga_image,
-               TGAColor(intensity * 255, intensity * 255, intensity * 255));
-    }
+  if (is_filled) {
   }
 }
 
