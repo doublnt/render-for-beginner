@@ -104,8 +104,26 @@ void triangle(Vec2i& vec0, Vec2i& vec1, Vec2i& vec2, TGAImage& tga_image,
   int width = tga_image.width();
   int height = tga_image.height();
 
-  for (int i = 0; i <= width; ++i) {
-    for (int j = 0; j <= height; ++j) {
+  // 或者就是算出包围这个三角形的一个矩形
+  // 相当于 算出 Bounding Box
+  auto left_x = vec0.x;
+  if (vec1.x < left_x) {
+    left_x = vec1.x;
+  }
+  if (vec2.x < left_x) {
+    left_x = vec2.x;
+  }
+
+  auto right_x = vec0.x;
+  if (vec1.x > right_x) {
+    right_x = vec1.x;
+  }
+  if (vec2.x > right_x) {
+    right_x = vec2.x;
+  }
+
+  for (int i = left_x; i <= right_x; ++i) {
+    for (int j = vec0.y; j <= vec2.y; ++j) {
       Vec2i curr_point(i, j);
       if (inside_triangle(curr_point, vec0, vec1, vec2)) {
         tga_image.set(i, j, color);
