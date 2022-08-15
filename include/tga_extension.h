@@ -64,7 +64,7 @@ bool inside_triangle(const Vec2i& src_point, const Vec2i& vec0,
                      const Vec2i& vec1, const Vec2i& vec2) {
   auto res0 = (src_point - vec0) * (vec2 - vec0);
   auto res1 = (src_point - vec2) * (vec1 - vec2);
-  auto res2 = (src_point - vec1) * (vec1 - vec0);
+  auto res2 = (src_point - vec1) * (vec0 - vec1);
 
   if (vec1.x > vec0.x) {
     res0 = (src_point - vec0) * (vec1 - vec0);
@@ -104,8 +104,8 @@ void triangle(Vec2i& vec0, Vec2i& vec1, Vec2i& vec2, TGAImage& tga_image,
   int width = tga_image.width();
   int height = tga_image.height();
 
-  for (int i = 0; i < width; ++i) {
-    for (int j = 0; j < height; ++j) {
+  for (int i = 0; i <= width; ++i) {
+    for (int j = 0; j <= height; ++j) {
       Vec2i curr_point(i, j);
       if (inside_triangle(curr_point, vec0, vec1, vec2)) {
         tga_image.set(i, j, color);
