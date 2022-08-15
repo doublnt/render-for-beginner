@@ -21,6 +21,8 @@ struct Vec2 {
   }
   inline Vec2<t> operator*(float f) const { return Vec2<t>(x * f, y * f); }
 
+  inline t operator*(const Vec2<t> &vec) const { return x * vec.y - vec.x * y; }
+
   template <class>
   friend std::ostream &operator<<(std::ostream &s, Vec2<t> &v);
 };

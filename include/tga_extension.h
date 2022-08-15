@@ -59,10 +59,59 @@ void bresenham_line(const Vec2i& vec0, const Vec2i& vec1, TGAImage& tga_image,
   bresenham_line(vec0.x, vec0.y, vec1.x, vec1.y, tga_image, color);
 }
 
+// 使用 向量的叉乘来判断 一个像素点是否在三角形内部
+bool inside_triangle(const Vec2i& src_point, const Vec2i& vec0,
+                     const Vec2i& vec1, const Vec2i& vec2) {
+  auto res0 = (src_point - vec0) * (vec2 - vec0);
+  auto res1 = (src_point - vec2) * (vec1 - vec2);
+  auto res2 = (src_point - vec1) * (vec1 - vec0);
+
+  if (vec1.x > vec0.x) {
+    res0 = (src_point - vec0) * (vec1 - vec0);
+    res1 = (src_point - vec1) * (vec2 - vec1);
+    res2 = (src_point - vec2) * (vec0 - vec2);
+  }
+
+  if ((res0 >= 0 && res1 >= 0 && res2 >= 0) ||
+      (res0 <= 0 && res1 <= 0 && res2 <= 0)) {
+    return true;
+  }
+
+  return false;
+}
+
 // 通过 Sampling 采样的方法来填充一个三角形，
 // 给定三个点。
 // 提供一个 contains 函数，判断这个点是否在三角形内
-// 如果在的话，就
-void triangle(const Vec2i& vec0, const Vec2i& vec1, const Vec2i& vec2) {}
+// 如果在的话，就绘制
+void triangle(Vec2i& vec0, Vec2i& vec1, Vec2i& vec2, TGAImage& tga_image,
+              const TGAColor& color) {
+  // vec0 vec1 vec2 从下到上排序好。
+  if (vec0.y > vec1.y) {
+    std::swap(vec0, vec1);
+  }
+
+  if (vec0.y > vec2.y) {
+    std::swap(vec0, vec2);
+  }
+
+  if (vec1.y > vec2.y) {
+    std::swap(vec1, vec2);
+  }
+
+  // 有一个愚蠢的办法， 就是把所有的 TgaImage width
+  // 和 Height 进去遍历
+  int width = tga_image.width();
+  int height = tga_image.height();
+
+  for (int i = 0; i < width; ++i) {
+    for (int j = 0; j < height; ++j) {
+      Vec2i curr_point(i, j);
+      if (inside_triangle(curr_point, vec0, vec1, vec2)) {
+        tga_image.set(i, j, color);
+      }
+    }
+  }
+}
 
 #endif  // __TGA_EXTENSION_H__

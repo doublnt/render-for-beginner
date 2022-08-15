@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
   Vec2i t1[3] = {Vec2i(180, 50), Vec2i(150, 1), Vec2i(70, 180)};
   Vec2i t2[3] = {Vec2i(180, 150), Vec2i(120, 160), Vec2i(130, 180)};
 
-  // triangle(t0[0], t0[1], t0[2], image, red, true);
+  triangle(t0[0], t0[1], t0[2], image, red);
   // triangle(t1[0], t1[1], t1[2], image, white, true);
   // triangle(t2[0], t2[1], t2[2], image, custom_green, true);
 
