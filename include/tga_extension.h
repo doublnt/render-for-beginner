@@ -81,14 +81,20 @@ bool inside_triangle(const Vec2<T>& src_point, const Vec2<T>& vec0,
   return false;
 }
 
-const float offset_ = 0.25f;
-
-std::vector<Vec2f> get_sample_list(const Vec2f& vec) {
+std::vector<Vec2f> get_sample_list(const Vec2f& vec, int ratio_count) {
   std::vector<Vec2f> vec_list;
-  vec_list.emplace_back(Vec2f(vec.x - offset_, vec.y + offset_));
-  vec_list.emplace_back(Vec2f(vec.x + offset_, vec.y + offset_));
-  vec_list.emplace_back(Vec2f(vec.x + offset_, vec.y - offset_));
-  vec_list.emplace_back(Vec2f(vec.x - offset_, vec.y - offset_));
+
+  float offset = 1.f / ratio_count;
+
+  int index = 0;
+  while (index++ < std::sqrt(ratio_count)) {
+    vec_list.emplace_back(Vec2f(vec.x + offset, vec.y + offset));
+    vec_list.emplace_back(Vec2f(vec.x + offset, vec.y - offset));
+    vec_list.emplace_back(Vec2f(vec.x - offset, vec.y - offset));
+    vec_list.emplace_back(Vec2f(vec.x - offset, vec.y + offset));
+
+    offset *= 2;
+  }
 
   return vec_list;
 }
@@ -96,9 +102,9 @@ std::vector<Vec2f> get_sample_list(const Vec2f& vec) {
 // MSAA 算法进行 抗锯齿
 bool inside_triangle_return_prox(const Vec2f& src_point, const Vec2f& vec0,
                                  const Vec2f& vec1, const Vec2f& vec2,
-                                 float& prox) {
+                                 float& prox, int ratio_count) {
   // 分成 2*2 的采样点。
-  auto list = get_sample_list(src_point);
+  auto list = get_sample_list(src_point, ratio_count);
   int appro_count = 0;
 
   for (auto& li : list) {
@@ -110,7 +116,7 @@ bool inside_triangle_return_prox(const Vec2f& src_point, const Vec2f& vec0,
     return false;
   }
 
-  prox = static_cast<float>(appro_count) / 4;
+  prox = static_cast<float>(appro_count) / ratio_count;
 
   return true;
 }
@@ -168,7 +174,7 @@ void triangle(Vec2i& vec0, Vec2i& vec1, Vec2i& vec2, TGAImage& tga_image,
       Vec2f curr_point(i, j);
       float approx = 1.f;
       if (inside_triangle_return_prox(curr_point, vec0_f, vec1_f, vec2_f,
-                                      approx)) {
+                                      approx, 16)) {
         rgba_color.bgra[3] = static_cast<int>(approx * 255);
         tga_image.set(i, j, rgba_color);
       }
