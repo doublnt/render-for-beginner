@@ -7,7 +7,7 @@ const int height = 200;
 Model* model = nullptr;
 
 int main(int argc, char** argv) {
-  TGAImage image(width, height, TGAImage::RGB);
+  TGAImage image(width, height, TGAImage::RGBA);
 
   model = new Model("d://work//render-for-beginner//obj//human_head.obj");
   delete model;

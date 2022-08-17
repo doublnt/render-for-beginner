@@ -59,9 +59,10 @@ void bresenham_line(const Vec2i& vec0, const Vec2i& vec1, TGAImage& tga_image,
   bresenham_line(vec0.x, vec0.y, vec1.x, vec1.y, tga_image, color);
 }
 
+template <class T>
 // 使用 向量的叉乘来判断 一个像素点是否在三角形内部
-bool inside_triangle(const Vec2i& src_point, const Vec2i& vec0,
-                     const Vec2i& vec1, const Vec2i& vec2) {
+bool inside_triangle(const Vec2<T>& src_point, const Vec2<T>& vec0,
+                     const Vec2<T>& vec1, const Vec2<T>& vec2) {
   auto res0 = (src_point - vec0) * (vec2 - vec0);
   auto res1 = (src_point - vec2) * (vec1 - vec2);
   auto res2 = (src_point - vec1) * (vec0 - vec1);
@@ -78,6 +79,40 @@ bool inside_triangle(const Vec2i& src_point, const Vec2i& vec0,
   }
 
   return false;
+}
+
+const float offset_ = 0.25f;
+
+std::vector<Vec2f> get_sample_list(const Vec2f& vec) {
+  std::vector<Vec2f> vec_list;
+  vec_list.emplace_back(Vec2f(vec.x - offset_, vec.y + offset_));
+  vec_list.emplace_back(Vec2f(vec.x + offset_, vec.y + offset_));
+  vec_list.emplace_back(Vec2f(vec.x + offset_, vec.y - offset_));
+  vec_list.emplace_back(Vec2f(vec.x - offset_, vec.y - offset_));
+
+  return vec_list;
+}
+
+// MSAA 算法进行 抗锯齿
+bool inside_triangle_return_prox(const Vec2f& src_point, const Vec2f& vec0,
+                                 const Vec2f& vec1, const Vec2f& vec2,
+                                 float& prox) {
+  // 分成 2*2 的采样点。
+  auto list = get_sample_list(src_point);
+  int appro_count = 0;
+
+  for (auto& li : list) {
+    if (inside_triangle<float>(li, vec0, vec1, vec2)) {
+      ++appro_count;
+    }
+  }
+  if (appro_count == 0) {
+    return false;
+  }
+
+  prox = static_cast<float>(appro_count) / 4;
+
+  return true;
 }
 
 // 通过 Sampling 采样的方法来填充一个三角形，
@@ -122,11 +157,20 @@ void triangle(Vec2i& vec0, Vec2i& vec1, Vec2i& vec2, TGAImage& tga_image,
     right_x = vec2.x;
   }
 
+  TGAColor rgba_color(color);
+
+  Vec2f vec0_f(vec0.x, vec0.y);
+  Vec2f vec1_f(vec1.x, vec1.y);
+  Vec2f vec2_f(vec2.x, vec2.y);
+
   for (int i = left_x; i <= right_x; ++i) {
     for (int j = vec0.y; j <= vec2.y; ++j) {
-      Vec2i curr_point(i, j);
-      if (inside_triangle(curr_point, vec0, vec1, vec2)) {
-        tga_image.set(i, j, color);
+      Vec2f curr_point(i, j);
+      float approx = 1.f;
+      if (inside_triangle_return_prox(curr_point, vec0_f, vec1_f, vec2_f,
+                                      approx)) {
+        rgba_color.bgra[3] = static_cast<int>(approx * 255);
+        tga_image.set(i, j, rgba_color);
       }
     }
   }
