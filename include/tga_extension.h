@@ -100,10 +100,10 @@ std::vector<Vec2f> get_sample_list(const Vec2f& vec, int ratio_count) {
 }
 
 // MSAA 算法进行 抗锯齿
-bool inside_triangle_return_prox(const Vec2f& src_point, const Vec2f& vec0,
-                                 const Vec2f& vec1, const Vec2f& vec2,
-                                 float& prox, int ratio_count) {
-  // 分成 2*2 的采样点。
+bool inside_triangle_MSAA(const Vec2f& src_point, const Vec2f& vec0,
+                          const Vec2f& vec1, const Vec2f& vec2, float& prox,
+                          int ratio_count) {
+  // 分成 ratio_count 的采样点。
   auto list = get_sample_list(src_point, ratio_count);
   int appro_count = 0;
 
@@ -173,8 +173,8 @@ void triangle(Vec2i& vec0, Vec2i& vec1, Vec2i& vec2, TGAImage& tga_image,
     for (int j = vec0.y; j <= vec2.y; ++j) {
       Vec2f curr_point(i, j);
       float approx = 1.f;
-      if (inside_triangle_return_prox(curr_point, vec0_f, vec1_f, vec2_f,
-                                      approx, 16)) {
+      if (inside_triangle_MSAA(curr_point, vec0_f, vec1_f, vec2_f, approx,
+                               16)) {
         rgba_color.bgra[3] = static_cast<int>(approx * 255);
         tga_image.set(i, j, rgba_color);
       }
