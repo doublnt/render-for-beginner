@@ -1,16 +1,28 @@
 cmake_minimum_required(VERSION 3.21)
 project(render-for-beginner)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 
 include_directories(include)
 
 set(
     SRC_LIST
-    render_run_main.cc
+    main.cc
     src/tgaimage.cpp
     src/model.cpp
 )
     
 
 add_executable(render-project ${SRC_LIST})
+
+add_subdirectory(external/eigen-3.4.0)
+include_directories(external/eigen-3.4.0/Eigen)
+
+set(OpenCV_DIR "D:/work/opencv/build/x64/vc15/lib")
+find_package(OpenCV REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+
+add_subdirectory(assignment1)
+add_subdirectory(assignment2)
+add_subdirectory(assignment3)
+add_subdirectory(assignment4)

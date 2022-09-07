@@ -9,7 +9,7 @@ Model* model = nullptr;
 int main(int argc, char** argv) {
   TGAImage image(width, height, TGAImage::RGBA);
 
-  model = new Model("d://work//render-for-beginner//obj//human_head.obj");
+  model = new Model("d://work//tiny-render//obj//human_head.obj");
   delete model;
 
   Vec2i t0[3] = {Vec2i(10, 70), Vec2i(50, 160), Vec2i(70, 80)};
@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
   // Vec2i pts[3] = {Vec2i(10, 10), Vec2i(100, 30), Vec2i(190, 160)};
   // triangle(pts, image, TGAColor(255, 0, 0));
 
-  image.write_tga_file("d://work//render-for-beginner//output//output.tga");
+  image.write_tga_file("d://work//tiny-render//output//output.tga");
 
   return 0;
 }
