@@ -71,7 +71,7 @@ Eigen::Vector3f texture_fragment_shader(
     auto v = payload.tex_coords[1];
 
     if (u >= 0 && v >= 0) {
-      return_color = payload.texture->getColor(u, v);
+      return_color = payload.texture->getColorBilinear(u, v);
     }
   }
 
@@ -229,12 +229,14 @@ Eigen::Vector3f displacement_fragment_shader(
     return Eigen::Vector3f{0, 0, 0};
   }
 
-  auto u_v = payload.texture->getColor(u, v).norm();
+  auto u_v = payload.texture->getColorBilinear(u, v).norm();
   auto h = payload.texture->height;
   auto w = payload.texture->width;
 
-  auto dU = kh * kn * (payload.texture->getColor(u + 1.f / w, v).norm() - u_v);
-  auto dV = kh * kn * (payload.texture->getColor(u, v + 1.f / h).norm() - u_v);
+  auto dU = kh * kn *
+            (payload.texture->getColorBilinear(u + 1.f / w, v).norm() - u_v);
+  auto dV = kh * kn *
+            (payload.texture->getColorBilinear(u, v + 1.f / h).norm() - u_v);
 
   Eigen::Vector3f ln{-dU, -dV, 1.f};
 
@@ -317,12 +319,14 @@ Eigen::Vector3f bump_fragment_shader(const fragment_shader_payload& payload) {
     return Eigen::Vector3f{0, 0, 0};
   }
 
-  auto u_v = payload.texture->getColor(u, v).norm();
+  auto u_v = payload.texture->getColorBilinear(u, v).norm();
   auto h = payload.texture->height;
   auto w = payload.texture->width;
 
-  auto dU = kh * kn * (payload.texture->getColor(u + 1.f / w, v).norm() - u_v);
-  auto dV = kh * kn * (payload.texture->getColor(u, v + 1.f / h).norm() - u_v);
+  auto dU = kh * kn *
+            (payload.texture->getColorBilinear(u + 1.f / w, v).norm() - u_v);
+  auto dV = kh * kn *
+            (payload.texture->getColorBilinear(u, v + 1.f / h).norm() - u_v);
 
   Eigen::Vector3f ln{-dU, -dV, 1};
 
@@ -374,7 +378,7 @@ int main(int argc, const char** argv) {
       phong_fragment_shader;
 
   // argc = 3;
-  // argv[1] = "bump_output.png";
+  // argv[1] = "output.png";
   // argv[2] = "bump";
 
   if (argc >= 2) {
