@@ -4,9 +4,9 @@
 #include "global.hpp"
 
 class Games101 {
- public:
+public:
   template <class T>
-  static void transform(Eigen::Matrix<T, 3, 1>& homogenious_point) {
+  static void transform(Eigen::Matrix<T, 3, 1> &homogenious_point) {
     // 逆时针旋转44度，再平移(1,2)
     // 齐次坐标
     // 首先是旋转矩阵的定义，齐次坐标
@@ -68,5 +68,21 @@ class Games101 {
     // projection matrix equal M(ortho) * M(projection_to_ortho)
     return get_model_matrix(180) * scale_matrix * translation_matrix *
            projection;
+  }
+
+  static bool inside_triangle(const Vector3f *_v, const Vector3f &point) {
+    Vector3f v[3];
+    for (int i = 0; i < 3; i++) {
+      v[i] = {_v[i].x(), _v[i].y(), 1.0};
+    }
+    Vector3f f0, f1, f2;
+    f0 = v[1].cross(v[0]);
+    f1 = v[2].cross(v[1]);
+    f2 = v[0].cross(v[2]);
+    Vector3f p(point[0], point[1], 1.);
+    if ((p.dot(f0) * f0.dot(v[2]) > 0) && (p.dot(f1) * f1.dot(v[0]) > 0) &&
+        (p.dot(f2) * f2.dot(v[1]) > 0))
+      return true;
+    return false;
   }
 };
